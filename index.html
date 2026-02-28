@@ -4,142 +4,324 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>OsvaldoFlix</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { background: #111; color: #fff; font-family: sans-serif; }
+    :root {
+      --bg:          #1a1625;
+      --surface:     #221d30;
+      --surface2:    #2b2540;
+      --border:      rgba(180,160,255,0.12);
+      --purple:      #a78bfa;
+      --purple-dim:  #7c5fcf;
+      --purple-glow: rgba(167,139,250,0.18);
+      --text:        #e9e4ff;
+      --muted:       #7a6f96;
+    }
 
-    h1 { text-align: center; padding: 20px; font-size: 1.6rem; color: #eee; }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    html { scroll-behavior: smooth; }
 
-    .search-bar {
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Outfit', sans-serif;
+      min-height: 100vh;
+    }
+
+    /* Header */
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 28px 24px 22px;
+      gap: 10px;
+    }
+
+    .logo-dot {
+      width: 9px; height: 9px;
+      border-radius: 50%;
+      background: var(--purple);
+      box-shadow: 0 0 10px var(--purple);
+    }
+
+    header h1 {
+      font-size: 1.45rem;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      color: var(--text);
+    }
+
+    header h1 span { color: var(--purple); }
+
+    /* Search */
+    .search-wrap {
       display: flex;
       justify-content: center;
-      gap: 10px;
-      padding: 10px 20px;
-      flex-wrap: wrap;
+      padding: 0 20px 22px;
     }
 
-    .search-bar input {
-      background: #222;
-      color: #fff;
-      border: 1px solid #444;
-      padding: 10px 14px;
-      border-radius: 6px;
-      font-size: 1rem;
-      width: 300px;
+    .search-box {
+      display: flex;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      overflow: hidden;
+      width: 100%;
+      max-width: 480px;
+      transition: box-shadow 0.2s;
     }
 
-    .search-bar button {
-      background: #e50914;
-      color: #fff;
+    .search-box:focus-within {
+      box-shadow: 0 0 0 2px rgba(167,139,250,0.28);
+    }
+
+    .search-box input {
+      flex: 1;
+      background: transparent;
       border: none;
-      padding: 10px 20px;
-      border-radius: 6px;
-      font-size: 1rem;
-      cursor: pointer;
+      outline: none;
+      color: var(--text);
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.95rem;
+      padding: 13px 18px;
     }
 
-    .search-bar button:hover { background: #b0060f; }
+    .search-box input::placeholder { color: var(--muted); }
 
+    .search-box button {
+      background: var(--purple-dim);
+      border: none;
+      color: #fff;
+      padding: 13px 22px;
+      font-size: 0.92rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.2s;
+      font-family: 'Outfit', sans-serif;
+    }
+
+    .search-box button:hover { background: var(--purple); }
+
+    /* Loading */
+    .loading {
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.85rem;
+      padding: 6px;
+      display: none;
+    }
+
+    /* Results grid */
     .results {
       display: flex;
       flex-wrap: wrap;
-      gap: 12px;
+      gap: 10px;
       justify-content: center;
-      padding: 10px 20px;
-      max-height: 320px;
+      padding: 0 20px 18px;
+      max-height: 290px;
       overflow-y: auto;
     }
 
+    .results::-webkit-scrollbar { width: 4px; }
+    .results::-webkit-scrollbar-track { background: transparent; }
+    .results::-webkit-scrollbar-thumb { background: var(--purple-dim); border-radius: 99px; }
+
     .card {
-      width: 110px;
+      width: 100px;
       cursor: pointer;
-      border-radius: 6px;
+      border-radius: 10px;
       overflow: hidden;
       border: 2px solid transparent;
-      transition: border 0.2s;
+      background: var(--surface);
+      transition: border-color 0.2s, transform 0.2s;
+      animation: fadeUp 0.25s ease both;
     }
 
-    .card:hover, .card.active { border-color: #e50914; }
+    .card:hover { transform: translateY(-2px); border-color: rgba(167,139,250,0.35); }
+    .card.active { border-color: var(--purple); box-shadow: 0 0 16px var(--purple-glow); }
 
     .card img {
       width: 100%;
-      height: 160px;
+      height: 148px;
       object-fit: cover;
       display: block;
     }
 
     .card p {
-      font-size: 0.7rem;
+      font-size: 0.68rem;
+      font-weight: 500;
       text-align: center;
-      padding: 4px;
-      background: #222;
+      padding: 5px 4px;
+      background: var(--surface2);
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
     }
 
+    /* Controls bar */
     .controls {
       display: flex;
-      justify-content: center;
       align-items: center;
-      gap: 10px;
+      justify-content: center;
       flex-wrap: wrap;
-      padding: 10px;
+      gap: 10px;
+      padding: 6px 20px 18px;
     }
 
     select {
-      background: #222;
-      color: #fff;
-      border: 1px solid #444;
-      padding: 8px 12px;
-      border-radius: 6px;
-      font-size: 1rem;
+      background: var(--surface);
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 9px 14px;
+      border-radius: 10px;
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.88rem;
       cursor: pointer;
+      outline: none;
+      transition: border-color 0.2s;
     }
 
-    .play-btn {
-      background: #e50914;
-      color: #fff;
-      border: none;
-      padding: 8px 20px;
-      border-radius: 6px;
-      font-size: 1rem;
-      cursor: pointer;
-    }
-
-    .play-btn:hover { background: #b0060f; }
-
-    .player-wrap {
-      width: 100%;
-      max-width: 960px;
-      margin: 20px auto;
-      aspect-ratio: 16/9;
-    }
-
-    iframe {
-      width: 100%;
-      height: 100%;
-      border: none;
-      border-radius: 8px;
-    }
+    select:focus { border-color: var(--purple-dim); }
 
     #season-wrap { display: none; gap: 10px; }
 
-    .loading {
-      text-align: center;
-      color: #aaa;
-      padding: 10px;
+    .btn {
+      border: none;
+      padding: 9px 22px;
+      border-radius: 10px;
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.92rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.15s;
+    }
+
+    .btn:active { transform: scale(0.97); }
+
+    .btn-play {
+      background: var(--purple-dim);
+      color: #fff;
+    }
+
+    .btn-play:hover { background: var(--purple); }
+
+    /* Download dropdown */
+    .download-wrap {
+      position: relative;
       display: none;
+    }
+
+    .download-wrap.show { display: block; }
+
+    .btn-download {
+      background: var(--surface2);
+      color: var(--purple);
+      border: 1px solid rgba(167,139,250,0.22);
+    }
+
+    .btn-download:hover {
+      background: var(--surface);
+      border-color: var(--purple);
+    }
+
+    .download-menu {
+      position: absolute;
+      bottom: calc(100% + 8px);
+      right: 0;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 6px;
+      min-width: 200px;
+      box-shadow: 0 10px 36px rgba(0,0,0,0.55);
+      z-index: 100;
+      display: none;
+      animation: fadeUp 0.15s ease;
+    }
+
+    .download-menu.open { display: block; }
+
+    .download-menu a {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      border-radius: 8px;
+      color: var(--text);
+      text-decoration: none;
+      font-size: 0.88rem;
+      transition: background 0.15s;
+    }
+
+    .download-menu a:hover { background: rgba(167,139,250,0.1); color: var(--purple); }
+
+    /* Divider */
+    .divider {
+      max-width: 860px;
+      margin: 0 auto 20px;
+      padding: 0 20px;
+    }
+
+    .divider hr { border: none; border-top: 1px solid var(--border); }
+
+    /* Player */
+    .player-container {
+      max-width: 860px;
+      margin: 0 auto 48px;
+      padding: 0 20px;
+    }
+
+    .player-wrap {
+      width: 100%;
+      aspect-ratio: 16/9;
+      background: var(--surface);
+      border-radius: 16px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.5), 0 0 50px rgba(124,95,207,0.07);
+    }
+
+    .player-wrap iframe {
+      width: 100%; height: 100%;
+      border: none; display: block;
+    }
+
+    .player-placeholder {
+      width: 100%; height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      color: var(--muted);
+    }
+
+    .player-placeholder .big-icon { font-size: 2.8rem; opacity: 0.35; }
+    .player-placeholder p { font-size: 0.88rem; font-weight: 300; }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 480px) {
+      select { font-size: 0.82rem; padding: 8px 10px; }
+      .btn   { padding: 8px 16px; font-size: 0.85rem; }
     }
   </style>
 </head>
 <body>
 
-  <h1>🎬 Player</h1>
+  <header>
+    <div class="logo-dot"></div>
+    <h1>Osvaldo<span>Flix</span></h1>
+  </header>
 
-  <div class="search-bar">
-    <input type="text" id="query" placeholder="Buscar filme ou série..." onkeydown="if(event.key==='Enter')buscar()">
-    <button onclick="buscar()">🔍 Buscar</button>
+  <div class="search-wrap">
+    <div class="search-box">
+      <input type="text" id="query" placeholder="Buscar filme ou série..." onkeydown="if(event.key==='Enter')buscar()">
+      <button onclick="buscar()">Buscar</button>
+    </div>
   </div>
 
   <div class="loading" id="loading">Buscando...</div>
@@ -157,15 +339,31 @@
       <select id="episode"></select>
     </div>
 
-    <button class="play-btn" onclick="play()">▶ Assistir</button>
+    <button class="btn btn-play" onclick="play()">▶ Assistir</button>
+
+    <div class="download-wrap" id="download-wrap">
+      <button class="btn btn-download" onclick="toggleMenu()">⬇ Download</button>
+      <div class="download-menu" id="download-menu">
+        <a href="#" id="dl-mobile" target="_blank" rel="noopener">
+          📱 &nbsp;Celular
+        </a>
+        <a href="#" id="dl-pc" target="_blank" rel="noopener">
+          💻 &nbsp;PC / Computador
+        </a>
+      </div>
+    </div>
   </div>
 
-  <div class="player-wrap">
-    <iframe id="player"
-      src="about:blank"
-      allowfullscreen
-      allow="autoplay; fullscreen">
-    </iframe>
+  <div class="divider"><hr></div>
+
+  <div class="player-container">
+    <div class="player-wrap">
+      <div class="player-placeholder" id="placeholder">
+        <div class="big-icon">🎬</div>
+        <p>Selecione um título e clique em Assistir</p>
+      </div>
+      <iframe id="player" src="about:blank" allowfullscreen allow="autoplay; fullscreen" style="display:none"></iframe>
+    </div>
   </div>
 
   <script>
@@ -182,15 +380,18 @@
       const data = await res.json();
       document.getElementById('loading').style.display = 'none';
 
-      const results = data.results.filter(r => r.media_type === 'tv' || r.media_type === 'movie').slice(0, 12);
+      const results = data.results.filter(r => r.media_type === 'tv' || r.media_type === 'movie').slice(0, 14);
       const container = document.getElementById('results');
 
-      results.forEach(item => {
+      results.forEach((item, i) => {
         const div = document.createElement('div');
         div.className = 'card';
+        div.style.animationDelay = (i * 35) + 'ms';
         const tipo = item.media_type === 'movie' ? '🎬' : '📺';
         div.innerHTML = `
-          <img src="${item.poster_path ? 'https://image.tmdb.org/t/p/w200' + item.poster_path : 'https://placehold.co/110x160/222/aaa?text=Sem+Capa'}" alt="">
+          <img src="${item.poster_path
+            ? 'https://image.tmdb.org/t/p/w200' + item.poster_path
+            : 'https://placehold.co/100x148/221d30/7a6f96?text=Sem+Capa'}" alt="">
           <p>${tipo} ${item.title || item.name}</p>
         `;
         div.onclick = () => selecionar(item, div);
@@ -251,17 +452,42 @@
       }
     }
 
-    function play() {
-      if (!selected) { alert('Selecione um título primeiro!'); return; }
-      const sv = document.getElementById('server').value;
-      const s = document.getElementById('season')?.value;
-      const e = document.getElementById('episode')?.value;
-      const url = getUrl(sv, selected.id, selected.media_type, s, e);
-      document.getElementById('player').src = url;
+    function getDownloadUrl(id, type, s, e) {
+      if (type === 'movie') return `https://dl.vidsrc.vip/movie/${id}`;
+      return `https://dl.vidsrc.vip/tv/${id}/${s}/${e}`;
     }
 
+    function play() {
+      if (!selected) { alert('Selecione um título primeiro!'); return; }
 
+      const sv = document.getElementById('server').value;
+      const s  = document.getElementById('season')?.value;
+      const e  = document.getElementById('episode')?.value;
+      const url = getUrl(sv, selected.id, selected.media_type, s, e);
+
+      document.getElementById('placeholder').style.display = 'none';
+      const iframe = document.getElementById('player');
+      iframe.style.display = 'block';
+      iframe.src = url;
+
+      // Set download links
+      const dlUrl = getDownloadUrl(selected.id, selected.media_type, s, e);
+      document.getElementById('dl-mobile').href = dlUrl;
+      document.getElementById('dl-pc').href = dlUrl;
+      document.getElementById('download-wrap').classList.add('show');
+    }
+
+    function toggleMenu() {
+      document.getElementById('download-menu').classList.toggle('open');
+    }
+
+    document.addEventListener('click', e => {
+      const wrap = document.getElementById('download-wrap');
+      if (!wrap.contains(e.target)) {
+        document.getElementById('download-menu').classList.remove('open');
+      }
+    });
   </script>
 
 </body>
-</html>
+</html> 
